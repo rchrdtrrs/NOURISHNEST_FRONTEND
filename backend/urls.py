@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/v1/recipes/', include('recipes.urls')),
     path('api/v1/analytics/', include('analytics.urls')),
     path('api/v1/community/', include('community.urls')),
+    path('api/v1/paypal/', include('paypal_integration.urls')),
 ]

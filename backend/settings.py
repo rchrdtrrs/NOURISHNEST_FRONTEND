@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'recipes',
     'analytics',
     'community',
+    'paypal_integration',
 ]
 
 MIDDLEWARE = [
@@ -190,3 +191,9 @@ CORS_ALLOW_CREDENTIALS = True
 
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
 OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1'
+
+
+# PayPal settings
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
+PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox")

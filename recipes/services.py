@@ -6,6 +6,14 @@ import logging
 
 import httpx
 from django.conf import settings
+import paypalrestsdk
+
+# Configure PayPal SDK
+paypalrestsdk.configure({
+    "mode": settings.PAYPAL_MODE,  # sandbox or live
+    "client_id": settings.PAYPAL_CLIENT_ID,
+    "client_secret": settings.PAYPAL_CLIENT_SECRET,
+})
 
 logger = logging.getLogger(__name__)
 
@@ -248,3 +256,48 @@ def calculate_match_score(recipe_ingredients: list, inventory_items: list) -> fl
                 break
     
     return round(matched / len(recipe_ingredients), 2)
+
+
+def create_payment(amount, currency="USD"):
+    """
+    Create a PayPal payment.
+    :param amount: The amount to charge.
+    :param currency: The currency for the payment.
+    :return: The payment object.
+    """
+    payment = paypalrestsdk.Payment({
+        "intent": "sale",
+        "payer": {
+            "payment_method": "paypal"
+        },
+        "transactions": [{
+            "amount": {
+                "total": f"{amount:.2f}",
+                "currency": currency
+            },
+            "description": "Payment description"
+        }],
+        "redirect_urls": {
+            "return_url": "http://localhost:8000/recipes/paypal/return",
+            "cancel_url": "http://localhost:8000/recipes/paypal/cancel"
+        }
+    })
+
+    if payment.create():
+        return payment
+    else:
+        raise Exception(payment.error)
+
+
+def execute_payment(payment_id, payer_id):
+    """
+    Execute a PayPal payment.
+    :param payment_id: The ID of the payment to execute.
+    :param payer_id: The ID of the payer.
+    :return: The executed payment object.
+    """
+    payment = paypalrestsdk.Payment.find(payment_id)
+    if payment.execute({"payer_id": payer_id}):
+        return payment
+    else:
+        raise Exception(payment.error)

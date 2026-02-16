@@ -1,0 +1,42 @@
+# PayPal API Integration Details
+
+## Endpoints
+1. **Create Payment**
+   - URL: `/api/v1/paypal/create/`
+   - Method: POST
+   - Description: Creates a PayPal payment and returns the payment ID.
+   - **Note**: Currently, the POST authentication for this endpoint is not working and is a work in progress (WIP).
+
+2. **Execute Payment**
+   - URL: `/api/v1/paypal/execute/`
+   - Method: POST
+   - Description: Executes a PayPal payment after user approval.
+   - **Note**: Ensure that the `paymentID` and `payerID` are correctly passed in the request body as `application/x-www-form-urlencoded`.
+
+## Configuration
+- **Environment Variables**:
+  - `PAYPAL_CLIENT_ID`: Your PayPal client ID.
+  - `PAYPAL_CLIENT_SECRET`: Your PayPal client secret.
+  - `PAYPAL_MODE`: Set to `sandbox` for testing or `live` for production.
+
+## Example Request
+### Create Payment
+```json
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "description": "Test payment"
+}
+```
+
+### Execute Payment
+```json
+{
+  "paymentID": "PAY-1234567890",
+  "payerID": "PAYER-1234"
+}
+```
+
+## Notes
+- The PayPal integration is currently under development, and some features may not work as expected.
+- Ensure that the PayPal credentials are correctly configured in the `.env` file.

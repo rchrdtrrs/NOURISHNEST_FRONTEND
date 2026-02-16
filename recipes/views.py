@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.http import JsonResponse
 
 from inventory.models import DietaryTag, InventoryItem
 from .models import Recipe, RecipeFork
@@ -12,7 +13,7 @@ from .serializers import (
     RecipeForkSerializer,
     RecipeForkCreateSerializer,
 )
-from .services import generate_recipe_sync, calculate_match_score
+from .services import generate_recipe_sync, calculate_match_score, create_payment, execute_payment
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -219,3 +220,22 @@ class UserForkedRecipesView(generics.ListAPIView):
         return RecipeFork.objects.filter(
             forked_by=self.request.user
         ).select_related('original_recipe')
+
+
+def paypal_create_payment(request):
+    try:
+        amount = float(request.GET.get("amount", 0))  # Replace with dynamic amount retrieval
+        payment = create_payment(amount=amount)
+        return JsonResponse({"paymentID": payment.id})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+def paypal_execute_payment(request):
+    try:
+        payment_id = request.GET.get("paymentID")
+        payer_id = request.GET.get("PayerID")
+        payment = execute_payment(payment_id, payer_id)
+        return JsonResponse({"status": "success", "payment": payment.to_dict()})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
